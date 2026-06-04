@@ -33,8 +33,8 @@ builder.Services.AddCors(options =>
 });
 
 // DbContext configuration (PostgreSQL)
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? Environment.GetEnvironmentVariable("DATABASE_URL")
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
+                       ?? builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? "Host=localhost;Port=5432;Database=incleanhome_booking;Username=postgres;Password=root";
 
 if (connectionString.StartsWith("postgres://") || connectionString.StartsWith("postgresql://"))
