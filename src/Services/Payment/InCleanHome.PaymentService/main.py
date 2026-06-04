@@ -5,11 +5,12 @@ from datetime import datetime, timezone
 from typing import List, Optional
 from decimal import Decimal
 
-from fastapi import FastAPI, Depends, HTTPException, Header, status, Request
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 import jose.jwt
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 import database
 import models
@@ -52,14 +53,11 @@ def shutdown_event():
     # Stop RabbitMQ consumer thread
     rabbitmq_manager.stop_consumer()
 
+security = HTTPBearer()
+
 # Helper to decode JWT and retrieve user identity
-def get_current_user(authorization: str = Header(...)) -> dict:
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authorization header format"
-        )
-    token = authorization.split(" ")[1]
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+    token = credentials.credentials
     try:
         payload = jose.jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         
