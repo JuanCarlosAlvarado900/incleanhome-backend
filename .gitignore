@@ -1,0 +1,30 @@
+# .gitignore for .NET and Python FastAPI Microservices
+
+# .NET Build artifacts
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+**/*.suo
+**/*.userosscache
+**/*.sln.docstates
+
+# Python artifacts
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache/
+**/env/
+**/venv/
+**/.venv/
+**/pip-log.txt
+**/pip-delete-this-directory.txt
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Docker volumes and logs
+**/*.log
+**/.docker/

@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  booking-db:
+    image: postgres:15-alpine
+    container_name: booking-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: booking_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - booking-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d booking_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  payment-db:
+    image: postgres:15-alpine
+    container_name: payment-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: payment_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - payment-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d payment_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  booking-service:
+    build:
+      context: .
+      dockerfile: src/Services/Booking/InCleanHome.BookingService/Dockerfile
+    container_name: booking-service
+    environment:
+      - DATABASE_URL=Host=booking-db;Port=5432;Database=booking_db;Username=postgres;Password=root
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - TokenSettings__Secret=InCleanHome_SuperSecretKey_AtLeast32CharactersLongAndVerySecure_2026
+    ports:
+      - "8081:8080"
+    depends_on:
+      booking-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  payment-service:
+    build:
+      context: src/Services/Payment/InCleanHome.PaymentService
+      dockerfile: Dockerfile
+    container_name: payment-service
+    environment:
+      - DATABASE_URL=postgresql://postgres:root@payment-db:5432/payment_db
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - BOOKING_SERVICE_URL=http://booking-service:8080
+      - JWT_SECRET=InCleanHome_SuperSecretKey_AtLeast32CharactersLongAndVerySecure_2026
+    ports:
+      - "8082:8000"
+    depends_on:
+      payment-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/Gateway/InCleanHome.ApiGateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "5000:8080"
+    depends_on:
+      - booking-service
+      - payment-service
+
+volumes:
+  booking-db-data:
+  payment-db-data:
+  rabbitmq-data:

@@ -1,0 +1,6 @@
+@InCleanHome.BookingService_HostAddress = http://localhost:5136
+
+GET {{InCleanHome.BookingService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
