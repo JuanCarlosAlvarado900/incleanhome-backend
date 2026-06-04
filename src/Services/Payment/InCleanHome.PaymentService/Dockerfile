@@ -8,11 +8,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY src/Services/Payment/InCleanHome.PaymentService/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY src/Services/Payment/InCleanHome.PaymentService/ .
 
 EXPOSE 8000
 
