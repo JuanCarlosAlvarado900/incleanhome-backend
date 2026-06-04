@@ -26,8 +26,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from urllib.parse import urlparse
+
 JWT_SECRET = os.getenv("JWT_SECRET", "InCleanHome_SuperSecretKey_AtLeast32CharactersLongAndVerySecure_2026")
-BOOKING_SERVICE_URL = os.getenv("BOOKING_SERVICE_URL", "http://booking-service:8080")
+
+raw_booking_url = os.getenv("BOOKING_SERVICE_URL", "http://booking-service:8080")
+parsed_url = urlparse(raw_booking_url)
+if parsed_url.scheme and parsed_url.netloc:
+    BOOKING_SERVICE_URL = f"{parsed_url.scheme}://{parsed_url.netloc}"
+else:
+    BOOKING_SERVICE_URL = raw_booking_url.rstrip("/")
 
 # Startup and Shutdown events
 @app.on_event("startup")

@@ -18,7 +18,7 @@ async function runTest() {
         body: JSON.stringify({
             workerId: 20,
             serviceType: "Limpieza profunda de cocina",
-            date: "2026-06-20",
+            date: new Date(Date.now() + (Math.floor(Math.random() * 300) + 10) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             startTime: "08:00",
             endTime: "12:00",
             hours: 4.0,
