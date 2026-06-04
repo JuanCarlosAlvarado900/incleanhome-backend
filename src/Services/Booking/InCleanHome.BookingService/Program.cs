@@ -69,8 +69,8 @@ builder.Services.AddScoped<IWorkerProfileQueryService, WorkerProfileQueryService
 builder.Services.AddScoped<IWorkerProfileCommandService, WorkerProfileCommandServiceMock>();
 
 // MassTransit & RabbitMQ
-var rabbitMqUrl = builder.Configuration["RabbitMQ:Url"] 
-                  ?? Environment.GetEnvironmentVariable("RABBITMQ_URL") 
+var rabbitMqUrl = Environment.GetEnvironmentVariable("RABBITMQ_URL") 
+                  ?? builder.Configuration["RabbitMQ:Url"] 
                   ?? "amqp://guest:guest@localhost:5672";
 
 builder.Services.AddSharedMassTransit(rabbitMqUrl, x =>
