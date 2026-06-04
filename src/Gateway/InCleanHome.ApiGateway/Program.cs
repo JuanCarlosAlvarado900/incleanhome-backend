@@ -1,8 +1,8 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Dynamically configure YARP destinations from environment variables (for Render deploy) or fall back to local defaults
-var bookingUrl = Environment.GetEnvironmentVariable("BOOKING_SERVICE_URL") ?? "http://booking-service:8080";
-var paymentUrl = Environment.GetEnvironmentVariable("PAYMENT_SERVICE_URL") ?? "http://payment-service:8000";
+var bookingUrl = (Environment.GetEnvironmentVariable("BOOKING_SERVICE_URL") ?? "http://booking-service:8080").TrimEnd('/');
+var paymentUrl = (Environment.GetEnvironmentVariable("PAYMENT_SERVICE_URL") ?? "http://payment-service:8000").TrimEnd('/');
 builder.Configuration["ReverseProxy:Clusters:booking-cluster:Destinations:destination1:Address"] = bookingUrl;
 builder.Configuration["ReverseProxy:Clusters:payment-cluster:Destinations:destination1:Address"] = paymentUrl;
 
